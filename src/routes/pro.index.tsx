@@ -21,8 +21,8 @@ function Accueil() {
     jour.refetch();
   };
   const lien = typeof window !== "undefined" ? `${window.location.origin}/r/${salon.slug}` : `/r/${salon.slug}`;
-  const aValider = (tdb.data?.aValider ?? []) as Rdv[];
-  const duJour = ((jour.data ?? []) as Rdv[]).filter((r) => ["confirmee", "honoree", "absente"].includes(r.statut));
+  const aValider = (tdb.data?.aValider ?? []) as unknown as Rdv[];
+  const duJour = ((jour.data ?? []) as unknown as Rdv[]).filter((r) => ["confirmee", "honoree", "absente"].includes(r.statut));
 
   return (
     <div className="space-y-10">

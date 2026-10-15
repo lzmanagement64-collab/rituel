@@ -19,7 +19,7 @@ function Agenda() {
     queryKey: ["agenda", salon.id, debut, fin],
     queryFn: () => chargerAgenda({ data: { salonId: salon.id, debut, fin } }),
   });
-  const rdvs = (q.data ?? []) as Rdv[];
+  const rdvs = (q.data ?? []) as unknown as Rdv[];
   const parJour = new Map<string, Rdv[]>();
   for (const r of rdvs) {
     const j = parisDateISO(r.date_debut);
