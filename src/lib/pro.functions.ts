@@ -39,12 +39,16 @@ export const monEspace = createServerFn({ method: "GET" })
     await context.supabase.from("membres").select("salon_id, role").eq("user_id", context.userId),
     "Lecture de votre compte impossible.",
   ) as { salon_id: string; role: string }[];
-  if (!membres.length) return { salon: null, role: null, aal: context.claims?.aal ?? null };
+  if (!membres.length) return { salon: null, role: null, aal: String(context.claims?.aal ?? "") };
   const salon = verifier(
     await context.supabase.from("salons").select("*").eq("id", membres[0].salon_id).maybeSingle(),
     "Lecture du salon impossible.",
   );
-  return { salon: salon as Record<string, unknown> | null, role: membres[0].role, aal: context.claims?.aal ?? null };
+  return {
+    salon: salon as { [cle: string]: string | number | boolean | null } | null,
+    role: membres[0].role,
+    aal: String(context.claims?.aal ?? ""),
+  };
 });
 
 // ------------------------------------------------------------

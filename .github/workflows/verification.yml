@@ -30,6 +30,8 @@ jobs:
       - uses: oven-sh/setup-bun@v2
       - name: Installation
         run: bun install
+      - name: Versions installées
+        run: echo "::notice title=Versions::$(bun pm ls 2>/dev/null | grep -E '@tanstack/react-(start|router)@|@supabase/supabase-js@|stripe@|zod@|typescript@' | tr '\n' ' ')"
       - name: Tests de logique
         run: bun test tests
       - name: Compilation
@@ -41,7 +43,7 @@ jobs:
           code=$?
           # Toute la liste des erreurs dans une seule annotation (GitHub en limite le nombre)
           if [ $code -ne 0 ]; then
-            grep -E "error TS" tsc.txt | head -150 | sed 's/%/%25/g' | awk 'BEGIN{ORS="%0A"} {print}' > liste.txt
+            grep -E "error TS" tsc.txt | grep -vE "TS7031|inputValidator' does not exist" | cut -c1-220 | head -60 | sed 's/%/%25/g' | awk 'BEGIN{ORS="%0A"} {print}' > liste.txt
             echo "::error title=Types ($(grep -c 'error TS' tsc.txt) erreurs)::$(cat liste.txt)"
           fi
           exit $code

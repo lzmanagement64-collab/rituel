@@ -23,18 +23,23 @@ const options = (cle: string) => ({
   global: { fetch: fetchAvecCle(cle) },
 });
 
-export function supabasePublic() {
+// Client volontairement non typé tant que les types de la base ne sont pas générés
+// (voir src/integrations/supabase/types.ts).
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type ClientSupabase = { from: (table: string) => any; rpc: (fn: string, args?: Record<string, unknown>) => any };
+
+export function supabasePublic(): ClientSupabase {
   const cle = secretObligatoire("SUPABASE_PUBLISHABLE_KEY");
-  return createClient(secretObligatoire("SUPABASE_URL"), cle, options(cle));
+  return createClient(secretObligatoire("SUPABASE_URL"), cle, options(cle)) as unknown as ClientSupabase;
 }
 
-let service: ReturnType<typeof createClient> | null = null;
+let service: ClientSupabase | null = null;
 
-export function supabaseService() {
+export function supabaseService(): ClientSupabase {
   if (!service) {
     const cle = lireSecret("SUPABASE_SERVICE_ROLE_KEY") || lireSecret("SUPABASE_SECRET_KEY");
     if (!cle) throw new Error("Configuration manquante : SUPABASE_SERVICE_ROLE_KEY");
-    service = createClient(secretObligatoire("SUPABASE_URL"), cle, options(cle));
+    service = createClient(secretObligatoire("SUPABASE_URL"), cle, options(cle)) as unknown as ClientSupabase;
   }
   return service;
 }
