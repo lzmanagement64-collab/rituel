@@ -1,0 +1,322 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ============================================================
+   Design system — « Emerald Beauty » (2026)
+   Palette : émeraude & sauge, sable chaud, ivoire, touche de doré.
+   Typos   : Instrument Serif (titres) · Manrope (texte et interface).
+   ============================================================ */
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 8px);
+  --radius-md: calc(var(--radius) - 4px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 6px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-porcelain: var(--porcelain);
+  --color-linen: var(--linen);
+  --color-nacre: var(--nacre);
+  --color-sand: var(--sand);
+  --color-sage: var(--sage);
+  --color-sage-soft: var(--sage-soft);
+  --color-emerald: var(--emerald);
+  --color-ink: var(--ink);
+  --color-taupe: var(--taupe);
+  --color-bordeaux: var(--bordeaux);
+  --color-emerald-deep: var(--emerald-deep);
+  --color-gold: var(--gold);
+
+  --font-display: "Instrument Serif", ui-serif, Georgia, serif;
+  --font-sans: "Manrope", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  /* Plus de police à chasse fixe : les anciennes classes « font-mono » restent lisibles. */
+  --font-mono: var(--font-sans);
+}
+
+:root {
+  --radius: 1.25rem;
+
+  /* Neutres chauds */
+  --porcelain: oklch(0.985 0.008 95); /* ivoire */
+  --linen: oklch(0.955 0.02 85); /* sable clair */
+  --sand: oklch(0.915 0.035 78); /* sable chaud */
+  --nacre: oklch(0.86 0.04 78);
+  /* Verts du logo */
+  --sage-soft: oklch(0.93 0.025 150);
+  --sage: oklch(0.76 0.05 152);
+  --emerald: oklch(0.45 0.085 162);
+  --emerald-deep: oklch(0.27 0.055 162);
+  --ink: oklch(0.25 0.045 162);
+  --taupe: oklch(0.46 0.025 150);
+  /* Accents */
+  --gold: oklch(0.8 0.085 85);
+  --bordeaux: oklch(0.55 0.1 25);
+
+  --background: var(--porcelain);
+  --foreground: var(--ink);
+  --card: oklch(1 0 0 / 0.72);
+  --card-foreground: var(--ink);
+  --popover: oklch(0.995 0.004 95);
+  --popover-foreground: var(--ink);
+  --primary: var(--emerald-deep);
+  --primary-foreground: var(--porcelain);
+  --secondary: var(--linen);
+  --secondary-foreground: var(--emerald-deep);
+  --muted: var(--linen);
+  --muted-foreground: var(--taupe);
+  --accent: var(--sage-soft);
+  --accent-foreground: var(--emerald-deep);
+  --destructive: oklch(0.55 0.19 27);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(0.3 0.04 160 / 0.12);
+  --input: oklch(0.3 0.04 160 / 0.16);
+  --ring: var(--emerald);
+}
+
+.dark {
+  --background: var(--emerald-deep);
+  --foreground: var(--porcelain);
+  --card: oklch(0.31 0.05 162);
+  --card-foreground: var(--porcelain);
+  --popover: oklch(0.31 0.05 162);
+  --popover-foreground: var(--porcelain);
+  --primary: var(--porcelain);
+  --primary-foreground: var(--emerald-deep);
+  --muted: oklch(0.34 0.05 162);
+  --muted-foreground: oklch(0.82 0.02 95);
+  --border: oklch(1 0 0 / 0.14);
+  --input: oklch(1 0 0 / 0.18);
+  --ring: var(--gold);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    background-color: var(--color-background);
+    /* Halo lumineux discret derrière toutes les pages */
+    background-image:
+      radial-gradient(60rem 40rem at 110% -10%, oklch(0.93 0.025 150 / 0.7), transparent 60%),
+      radial-gradient(50rem 36rem at -20% 20%, oklch(0.94 0.03 80 / 0.7), transparent 60%);
+    background-attachment: fixed;
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-size: 15.5px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    letter-spacing: -0.015em;
+    line-height: 1.05;
+  }
+
+  ::selection {
+    background: var(--color-sage);
+    color: var(--color-emerald-deep);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-emerald);
+    outline-offset: 3px;
+  }
+}
+
+/* Petit intitulé au-dessus des titres */
+@utility eyebrow {
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--color-emerald);
+}
+
+@utility hairline {
+  height: 1px;
+  background-color: var(--color-border);
+  width: 100%;
+}
+
+/* Boutons */
+@utility btn-primaire {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+  padding: 0.95rem 1.6rem;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--color-porcelain);
+  background: linear-gradient(135deg, var(--color-emerald) 0%, var(--color-emerald-deep) 100%);
+  box-shadow: 0 14px 30px -14px oklch(0.27 0.055 162 / 0.6);
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    opacity 0.2s;
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 18px 36px -14px oklch(0.27 0.055 162 / 0.7);
+  }
+  &:disabled {
+    opacity: 0.45;
+    transform: none;
+  }
+}
+
+@utility btn-secondaire {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+  padding: 0.95rem 1.6rem;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--color-emerald-deep);
+  background: oklch(1 0 0 / 0.6);
+  border: 1px solid var(--color-border);
+  backdrop-filter: blur(8px);
+  transition:
+    background 0.25s ease,
+    border-color 0.25s ease;
+  &:hover {
+    background: oklch(1 0 0 / 0.9);
+    border-color: oklch(0.3 0.04 160 / 0.3);
+  }
+}
+
+/* Carte « bento » : bloc arrondi, verre dépoli léger */
+@utility carte {
+  border-radius: 1.75rem;
+  border: 1px solid var(--color-border);
+  background: oklch(1 0 0 / 0.66);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 1px 0 oklch(1 0 0 / 0.8) inset;
+}
+
+/* Dégradés de marque */
+@utility fond-aurore {
+  background:
+    radial-gradient(80% 70% at 15% 10%, oklch(0.9 0.04 152 / 0.9), transparent 60%),
+    radial-gradient(70% 70% at 95% 20%, oklch(0.92 0.045 80 / 0.95), transparent 60%),
+    linear-gradient(160deg, oklch(0.97 0.015 95), oklch(0.93 0.03 85));
+}
+@utility fond-emeraude {
+  background:
+    radial-gradient(70% 90% at 85% 0%, oklch(0.55 0.09 160 / 0.9), transparent 60%),
+    radial-gradient(60% 80% at 0% 100%, oklch(0.4 0.07 170 / 0.9), transparent 60%),
+    linear-gradient(150deg, oklch(0.33 0.06 162), oklch(0.24 0.05 162));
+  color: var(--color-porcelain);
+}
+@utility texte-or {
+  background: linear-gradient(120deg, oklch(0.72 0.09 80), oklch(0.85 0.08 90), oklch(0.7 0.08 75));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Défilement horizontal (galerie sur mobile) sans barre visible */
+@utility defile-x {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  & > * {
+    scroll-snap-align: start;
+  }
+}
+
+/* Apparition douce au défilement (voir AnimationsDefilement) */
+@keyframes reveal-up {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@utility reveal {
+  animation: reveal-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.anim-pret [data-apparait] {
+  opacity: 0;
+  transform: translateY(22px);
+  transition:
+    opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--delai, 0ms);
+}
+.anim-pret [data-apparait].est-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* Zoom doux des photos au survol */
+.photo-zoom img {
+  transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.photo-zoom:hover img {
+  transform: scale(1.045);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .anim-pret [data-apparait] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .photo-zoom img,
+  .photo-zoom:hover img {
+    transition: none;
+    transform: none;
+  }
+  .reveal {
+    animation: none;
+  }
+}
