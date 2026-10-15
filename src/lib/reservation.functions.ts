@@ -34,7 +34,7 @@ export type PrestationPublique = {
 export type DonneesSalon = { salon: SalonPublic; prestations: PrestationPublique[]; reservable: boolean };
 
 export const chargerSalon = createServerFn({ method: "GET" })
-  .inputValidator((d: unknown) => slugSchema.parse(d))
+  .validator((d: unknown) => slugSchema.parse(d))
   .handler(async ({ data }) => {
     const { supabasePublic } = await import("./supabase.server");
     const { clePubliqueStripe } = await import("./stripe.server");
@@ -76,7 +76,7 @@ export const chargerSalon = createServerFn({ method: "GET" })
   });
 
 export const chargerCreneaux = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => creneauxSchema.parse(d))
+  .validator((d: unknown) => creneauxSchema.parse(d))
   .handler(async ({ data }) => {
     const { supabasePublic } = await import("./supabase.server");
     const { data: rows, error } = await supabasePublic().rpc("creneaux_disponibles", {
@@ -93,7 +93,7 @@ export const chargerCreneaux = createServerFn({ method: "POST" })
  * sur le compte Stripe du salon. Le montant vient de la base, jamais du navigateur.
  */
 export const reserver = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => reservationSchema.parse(d))
+  .validator((d: unknown) => reservationSchema.parse(d))
   .handler(async ({ data }) => {
     if (data.site) throw new Error("Demande refusée.");
     const { supabaseService } = await import("./supabase.server");
@@ -161,7 +161,7 @@ export const reserver = createServerFn({ method: "POST" })
 
 /** Page « mon rendez-vous » (lien personnel reçu par e-mail). */
 export const etatRendezVous = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => tokenSchema.parse(d))
+  .validator((d: unknown) => tokenSchema.parse(d))
   .handler(async ({ data }) => {
     const { chargerRdv, verifierPaiement } = await import("./paiement.server");
     let r = await chargerRdv({ token: data.token });
@@ -199,7 +199,7 @@ export const etatRendezVous = createServerFn({ method: "POST" })
   });
 
 export const annulerRendezVous = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => tokenSchema.parse(d))
+  .validator((d: unknown) => tokenSchema.parse(d))
   .handler(async ({ data }) => {
     const { supabaseService } = await import("./supabase.server");
     const { chargerRdv, rembourser, pourEmail } = await import("./paiement.server");

@@ -58,7 +58,7 @@ const SELECT_AGENDA =
   "id, statut, source, prestation_nom, date_debut, date_fin, prix_total, acompte_montant, acompte_statut, montant_rembourse, commentaire_cliente, note_interne, cliente_id, clientes(prenom, nom, telephone, email)";
 
 export const chargerAgenda = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => periodeSchema.parse(d))
+  .validator((d: unknown) => periodeSchema.parse(d))
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }) => {
     const debut = parisToUtc(data.debut, "00:00").toISOString();
@@ -77,7 +77,7 @@ export const chargerAgenda = createServerFn({ method: "POST" })
   });
 
 export const chargerTableauDeBord = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => salonIdSchema.parse(d))
+  .validator((d: unknown) => salonIdSchema.parse(d))
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }) => {
     const maintenant = new Date();
@@ -119,7 +119,7 @@ export const chargerTableauDeBord = createServerFn({ method: "POST" })
   });
 
 export const changerStatut = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => statutSchema.parse(d))
+  .validator((d: unknown) => statutSchema.parse(d))
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }) => {
     const { exigerMembre } = await import("./pro.server");
@@ -150,7 +150,7 @@ export const changerStatut = createServerFn({ method: "POST" })
   });
 
 export const enregistrerNoteRdv = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => ({ ...idSchema.parse(d), note: String((d as { note?: string }).note ?? "").slice(0, 1000) }))
+  .validator((d: unknown) => ({ ...idSchema.parse(d), note: String((d as { note?: string }).note ?? "").slice(0, 1000) }))
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }) => {
     verifier(
@@ -168,7 +168,7 @@ export const enregistrerNoteRdv = createServerFn({ method: "POST" })
 // Prestations
 // ------------------------------------------------------------
 export const chargerPrestations = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => salonIdSchema.parse(d))
+  .validator((d: unknown) => salonIdSchema.parse(d))
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }) =>
     verifier(
@@ -178,7 +178,7 @@ export const chargerPrestations = createServerFn({ method: "POST" })
   );
 
 export const enregistrerPrestation = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => prestationSchema.parse(d))
+  .validator((d: unknown) => prestationSchema.parse(d))
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }) => {
     const { id, salonId, ...champs } = data;
@@ -194,7 +194,7 @@ export const enregistrerPrestation = createServerFn({ method: "POST" })
 // Horaires et congés
 // ------------------------------------------------------------
 export const chargerHoraires = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => salonIdSchema.parse(d))
+  .validator((d: unknown) => salonIdSchema.parse(d))
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }) => {
     const [h, i] = await Promise.all([
@@ -210,7 +210,7 @@ export const chargerHoraires = createServerFn({ method: "POST" })
   });
 
 export const enregistrerHoraires = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => horairesSchema.parse(d))
+  .validator((d: unknown) => horairesSchema.parse(d))
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }) => {
     const lignes = data.jours.map((j: (typeof data.jours)[number]) => ({ ...j, salon_id: data.salonId }));
@@ -222,7 +222,7 @@ export const enregistrerHoraires = createServerFn({ method: "POST" })
   });
 
 export const ajouterIndispo = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => indispoSchema.parse(d))
+  .validator((d: unknown) => indispoSchema.parse(d))
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }) => {
     verifier(
@@ -238,7 +238,7 @@ export const ajouterIndispo = createServerFn({ method: "POST" })
   });
 
 export const supprimerIndispo = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => idSchema.parse(d))
+  .validator((d: unknown) => idSchema.parse(d))
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }) => {
     verifier(
@@ -252,7 +252,7 @@ export const supprimerIndispo = createServerFn({ method: "POST" })
 // Réglages du salon
 // ------------------------------------------------------------
 export const enregistrerReglages = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => reglagesSchema.parse(d))
+  .validator((d: unknown) => reglagesSchema.parse(d))
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }) => {
     const { salonId, ...champs } = data;
@@ -264,7 +264,7 @@ export const enregistrerReglages = createServerFn({ method: "POST" })
 
 /** Ouvre (ou reprend) l'inscription du salon chez Stripe. Renvoie l'adresse de la page Stripe. */
 export const connecterStripe = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => salonIdSchema.parse(d))
+  .validator((d: unknown) => salonIdSchema.parse(d))
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }) => {
     const { exigerMembre } = await import("./pro.server");
@@ -300,7 +300,7 @@ export const connecterStripe = createServerFn({ method: "POST" })
 
 /** Relit l'état du compte Stripe du salon (paiements activés ou non). */
 export const actualiserStripe = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => salonIdSchema.parse(d))
+  .validator((d: unknown) => salonIdSchema.parse(d))
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }) => {
     const { exigerMembre } = await import("./pro.server");
@@ -321,7 +321,7 @@ export const actualiserStripe = createServerFn({ method: "POST" })
 // Clientes
 // ------------------------------------------------------------
 export const chargerClientes = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => salonIdSchema.parse(d))
+  .validator((d: unknown) => salonIdSchema.parse(d))
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }) =>
     verifier(
@@ -336,7 +336,7 @@ export const chargerClientes = createServerFn({ method: "POST" })
   );
 
 export const chargerHistoriqueCliente = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => clienteSchema.parse(d))
+  .validator((d: unknown) => clienteSchema.parse(d))
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }) =>
     verifier(
@@ -353,7 +353,7 @@ export const chargerHistoriqueCliente = createServerFn({ method: "POST" })
   );
 
 export const enregistrerNotes = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => notesSchema.parse(d))
+  .validator((d: unknown) => notesSchema.parse(d))
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }) => {
     verifier(
@@ -369,7 +369,7 @@ export const enregistrerNotes = createServerFn({ method: "POST" })
 
 /** Données de santé : chiffrées par le serveur, avec consentement explicite. */
 export const enregistrerSante = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => santeSchema.parse(d))
+  .validator((d: unknown) => santeSchema.parse(d))
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }) => {
     const { exigerMembre } = await import("./pro.server");
@@ -389,7 +389,7 @@ export const enregistrerSante = createServerFn({ method: "POST" })
   });
 
 export const lireSante = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => clienteSchema.parse(d))
+  .validator((d: unknown) => clienteSchema.parse(d))
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }) => {
     const { exigerMembre } = await import("./pro.server");
@@ -409,7 +409,7 @@ export const lireSante = createServerFn({ method: "POST" })
 
 /** Droit à l'effacement : supprime la fiche et tout son historique (propriétaire seulement). */
 export const supprimerCliente = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => clienteSchema.parse(d))
+  .validator((d: unknown) => clienteSchema.parse(d))
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }) => {
     const { exigerMembre } = await import("./pro.server");
@@ -430,7 +430,7 @@ export const supprimerCliente = createServerFn({ method: "POST" })
 
 /** Export CSV du fichier clientes (droit à la portabilité, propriétaire seulement). */
 export const exporterClientes = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => salonIdSchema.parse(d))
+  .validator((d: unknown) => salonIdSchema.parse(d))
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }) => {
     const { exigerMembre } = await import("./pro.server");
@@ -459,7 +459,7 @@ export const exporterClientes = createServerFn({ method: "POST" })
   });
 
 export const chargerJournal = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => salonIdSchema.parse(d))
+  .validator((d: unknown) => salonIdSchema.parse(d))
   .middleware([requireSupabaseAuth])
   .handler(async ({ data, context }) =>
     verifier(
