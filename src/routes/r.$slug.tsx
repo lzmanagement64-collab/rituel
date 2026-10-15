@@ -5,7 +5,7 @@
 // ============================================================
 import { createFileRoute, notFound, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
-import { chargerCreneaux, chargerSalon, reserver } from "@/lib/reservation.functions";
+import { chargerCreneaux, chargerSalon, reserver, type DonneesSalon } from "@/lib/reservation.functions";
 import { duree, euros, messageErreur } from "@/lib/regles";
 import { parisDateISO, parisLongDate } from "@/lib/tz";
 import { Paiement } from "@/components/reservation/Paiement";
@@ -41,7 +41,7 @@ function prochainsJours(n: number): string[] {
 }
 
 function PageReservation() {
-  const { salon, prestations, reservable } = Route.useLoaderData();
+  const { salon, prestations, reservable } = Route.useLoaderData() as DonneesSalon;
   const navigate = useNavigate();
   const [etape, setEtape] = useState<Etape>("prestation");
   const [prestationId, setPrestationId] = useState<string | null>(null);
@@ -64,7 +64,7 @@ function PageReservation() {
     setCreneaux(null);
     setHeure(null);
     chargerCreneaux({ data: { slug: salon.slug, prestationId, date: jour } })
-      .then((c) => !annule && setCreneaux(c))
+      .then((c: string[]) => !annule && setCreneaux(c))
       .catch(() => !annule && setCreneaux([]));
     return () => {
       annule = true;

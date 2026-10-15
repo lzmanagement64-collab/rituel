@@ -7,6 +7,32 @@ import { createServerFn } from "@tanstack/react-start";
 import { creneauxSchema, reservationSchema, slugSchema, tokenSchema } from "./schemas";
 import { messageErreur } from "./regles";
 
+export type SalonPublic = {
+  id: string;
+  slug: string;
+  nom: string;
+  metier: string;
+  ville: string;
+  telephone: string;
+  instagram: string;
+  description: string;
+  couleur: string;
+  acompte_pourcent: number;
+  annulation_gratuite_heures: number;
+  horizon_jours: number;
+  paiements_actifs: boolean;
+  ouvert: boolean;
+};
+export type PrestationPublique = {
+  id: string;
+  nom: string;
+  description: string;
+  duree_minutes: number;
+  prix: number;
+  acompte: number;
+};
+export type DonneesSalon = { salon: SalonPublic; prestations: PrestationPublique[]; reservable: boolean };
+
 export const chargerSalon = createServerFn({ method: "GET" })
   .inputValidator((d: unknown) => slugSchema.parse(d))
   .handler(async ({ data }) => {

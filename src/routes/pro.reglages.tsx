@@ -49,7 +49,7 @@ function Reglages() {
     if (typeof window === "undefined") return;
     if (new URLSearchParams(window.location.search).has("stripe")) {
       actualiserStripe({ data: { salonId: salon.id } })
-        .then((r) => {
+        .then((r: { actifs: boolean }) => {
           toast[r.actifs ? "success" : "message"](r.actifs ? "Paiements activés : vos clientes peuvent réserver." : "Stripe vérifie encore votre compte.");
           recharger();
         })
