@@ -39,7 +39,9 @@ jobs:
           set +e
           bunx tsc --noEmit --pretty false > tsc.txt 2>&1
           code=$?
-          # Chaque erreur devient une annotation lisible dans l'onglet Actions
-          sed -nE 's#^([^(]+)\(([0-9]+),([0-9]+)\): error (TS[0-9]+): (.*)$#::error file=\1,line=\2,col=\3::\4 \5#p' tsc.txt | head -45
-          tail -5 tsc.txt
+          # Toute la liste des erreurs dans une seule annotation (GitHub en limite le nombre)
+          if [ $code -ne 0 ]; then
+            grep -E "error TS" tsc.txt | head -150 | sed 's/%/%25/g' | awk 'BEGIN{ORS="%0A"} {print}' > liste.txt
+            echo "::error title=Types ($(grep -c 'error TS' tsc.txt) erreurs)::$(cat liste.txt)"
+          fi
           exit $code
