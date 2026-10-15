@@ -16,7 +16,7 @@ jobs:
     name: Sécurité de la base (cloisonnement, paiements, RGPD)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: PostgreSQL disponible
         run: ls /usr/lib/postgresql/*/bin/initdb || (sudo apt-get update && sudo apt-get install -y postgresql)
       - name: Tests de sécurité
@@ -26,7 +26,7 @@ jobs:
     name: Application (tests, compilation, types)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: oven-sh/setup-bun@v2
       - name: Installation
         run: bun install
@@ -35,4 +35,11 @@ jobs:
       - name: Compilation
         run: bun run build
       - name: Vérification des types
-        run: bunx tsc --noEmit
+        run: |
+          set +e
+          bunx tsc --noEmit --pretty false > tsc.txt 2>&1
+          code=$?
+          # Chaque erreur devient une annotation lisible dans l'onglet Actions
+          sed -nE 's#^([^(]+)\(([0-9]+),([0-9]+)\): error (TS[0-9]+): (.*)$#::error file=\1,line=\2,col=\3::\4 \5#p' tsc.txt | head -45
+          tail -5 tsc.txt
+          exit $code
