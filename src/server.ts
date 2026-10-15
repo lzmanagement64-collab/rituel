@@ -2,27 +2,16 @@ import "./lib/error-capture";
 
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
-import { business } from "./config/business";
 
-// Seule l'adresse officielle doit être référencée par Google.
-const HOTE_OFFICIEL = new URL(business.siteUrl).hostname;
-
-/** www.emeraldbeauty.fr → emeraldbeauty.fr (redirection permanente). */
-function redirectionWww(request: Request): Response | null {
-  const url = new URL(request.url);
-  if (url.hostname !== `www.${HOTE_OFFICIEL}`) return null;
-  url.hostname = HOTE_OFFICIEL;
-  url.protocol = "https:";
-  url.port = "";
-  return new Response(null, { status: 301, headers: { location: url.toString() } });
-}
-
-/** Adresses lovable.app (site publié, aperçus) : jamais indexées. */
-function nonIndexable(request: Request, response: Response): Response {
-  const hote = new URL(request.url).hostname;
-  if (hote === HOTE_OFFICIEL || hote === "localhost" || hote === "127.0.0.1") return response;
+/** En-têtes de sécurité ajoutés à toutes les réponses. */
+function securiser(response: Response): Response {
   const copie = new Response(response.body, response);
-  copie.headers.set("X-Robots-Tag", "noindex, nofollow");
+  const h = copie.headers;
+  h.set("X-Content-Type-Options", "nosniff");
+  h.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  h.set("X-Frame-Options", "DENY");
+  h.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains");
+  h.set("Permissions-Policy", "camera=(), microphone=(), geolocation=(), payment=(self \"https://js.stripe.com\")");
   return copie;
 }
 
@@ -70,11 +59,17 @@ function isH3SwallowedErrorBody(body: string): boolean {
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
-      const www = redirectionWww(request);
-      if (www) return www;
+      // Hébergement Cloudflare : les secrets arrivent dans `env`.
+      if (env && typeof env === "object") (globalThis as { __env__?: unknown }).__env__ = env;
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
-      return nonIndexable(request, await normalizeCatastrophicSsrResponse(response));
+      const finale = await normalizeCatastrophicSsrResponse(response);
+      const securisee = securiser(finale);
+      if (new URL(request.url).pathname.match(/^\/(pro|rdv|api)/)) {
+        securisee.headers.set("X-Robots-Tag", "noindex, nofollow");
+        securisee.headers.set("Cache-Control", "no-store");
+      }
+      return securisee;
     } catch (error) {
       console.error(error);
       return new Response(renderErrorPage(), {

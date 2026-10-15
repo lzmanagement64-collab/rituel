@@ -1,0 +1,38 @@
+# ============================================================
+# Vérification automatique à chaque envoi sur GitHub.
+# Une croix rouge = ne pas mettre en ligne.
+# ============================================================
+name: Vérification
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  securite-base:
+    name: Sécurité de la base (cloisonnement, paiements, RGPD)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: PostgreSQL disponible
+        run: ls /usr/lib/postgresql/*/bin/initdb || (sudo apt-get update && sudo apt-get install -y postgresql)
+      - name: Tests de sécurité
+        run: bash scripts/tester-base.sh
+
+  application:
+    name: Application (tests, compilation, types)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - name: Installation
+        run: bun install
+      - name: Tests de logique
+        run: bun test tests
+      - name: Compilation
+        run: bun run build
+      - name: Vérification des types
+        run: bunx tsc --noEmit

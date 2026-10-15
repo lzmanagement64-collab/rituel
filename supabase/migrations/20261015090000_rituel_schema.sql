@@ -357,13 +357,15 @@ CREATE POLICY journal_lecture ON public.journal FOR SELECT TO authenticated
 -- FONCTIONS PUBLIQUES (visiteuses) — informations publiques uniquement
 -- ============================================================
 CREATE OR REPLACE FUNCTION public.salon_public(p_slug text)
+-- L'adresse n'est PAS publique : beaucoup de pros reçoivent chez elles.
+-- Elle n'est communiquée qu'après confirmation du rendez-vous.
 RETURNS TABLE (
-  id uuid, slug text, nom text, metier text, ville text, adresse text, telephone text,
+  id uuid, slug text, nom text, metier text, ville text, telephone text,
   instagram text, description text, couleur text, acompte_pourcent int,
   annulation_gratuite_heures int, horizon_jours int, paiements_actifs boolean, ouvert boolean
 )
 LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public AS $$
-  SELECT s.id, s.slug, s.nom, s.metier, s.ville, s.adresse, s.telephone, s.instagram,
+  SELECT s.id, s.slug, s.nom, s.metier, s.ville, s.telephone, s.instagram,
          s.description, s.couleur, s.acompte_pourcent, s.annulation_gratuite_heures,
          s.horizon_jours, s.paiements_actifs,
          (s.actif AND s.abonnement_statut IN ('essai', 'actif')
@@ -498,6 +500,13 @@ BEGIN
   IF p IS NULL THEN RAISE EXCEPTION 'PRESTATION_INCONNUE'; END IF;
 
   PERFORM public.liberer_expirees(s.id);
+
+  -- Anti-blocage d'agenda : 2 demandes non payées en même temps par adresse e-mail, pas plus.
+  IF (SELECT count(*) FROM public.reservations r JOIN public.clientes c ON c.id = r.cliente_id
+      WHERE r.salon_id = s.id AND lower(c.email) = lower(trim(p_email))
+        AND r.statut = 'en_attente_paiement' AND r.acompte_expire_le > now()) >= 2 THEN
+    RAISE EXCEPTION 'TROP_DE_DEMANDES';
+  END IF;
 
   IF NOT EXISTS (SELECT 1 FROM public.creneaux_disponibles(p_slug, p_date, p_prestation) c WHERE c.heure = p_heure) THEN
     RAISE EXCEPTION 'CRENEAU_INDISPONIBLE';

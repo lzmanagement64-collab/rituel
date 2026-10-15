@@ -3,7 +3,7 @@ export function renderErrorPage(): string {
 <html lang="fr">
   <head>
     <meta charset="utf-8" />
-    <title>Page momentanément indisponible — Emerald Beauty</title>
+    <title>Page momentanément indisponible — Rituel</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex" />
     <style>
@@ -20,7 +20,7 @@ export function renderErrorPage(): string {
   <body>
     <div class="card">
       <h1>Cette page n'a pas pu s'afficher</h1>
-      <p>Un problème momentané est survenu. Vous pouvez réessayer, ou nous appeler au 06 17 25 54 24 pour prendre rendez-vous.</p>
+      <p>Un problème momentané est survenu. Merci de réessayer dans un instant.</p>
       <div class="actions">
         <button class="primary" onclick="location.reload()">Réessayer</button>
         <a class="secondary" href="/">Retour à l'accueil</a>

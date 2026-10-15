@@ -15,6 +15,14 @@ appliquer() {
     psql "$url" -q -v ON_ERROR_STOP=1 -f "$f"
   done
   psql "$url" -v ON_ERROR_STOP=1 -f supabase/tests/10_securite.sql
+  # Le modèle de création de salon doit fonctionner tel quel
+  psql "$url" -q -v ON_ERROR_STOP=1 -c "INSERT INTO auth.users (email) VALUES ('modele@exemple.test')"
+  sed "s/<<adresse-du-salon>>/salon-modele/g; s/<<Nom du salon>>/Salon modèle/; s/<<Ville>>/Pau/; s/<<téléphone>>/0600000000/; s/<<email@du-salon.fr>>/modele@exemple.test/g" \
+    scripts/creer-salon.sql | psql "$url" -q -v ON_ERROR_STOP=1 -o /dev/null
+  local n
+  n=$(psql "$url" -tA -c "SELECT count(*) FROM public.horaires h JOIN public.salons s ON s.id = h.salon_id JOIN public.membres m ON m.salon_id = s.id WHERE s.slug = 'salon-modele' AND m.role = 'proprietaire'")
+  [[ "$n" == "7" ]] || { echo "ÉCHEC : scripts/creer-salon.sql ne crée pas le salon correctement"; exit 1; }
+  echo "Modèle de création de salon : OK"
 }
 
 if [[ -n "${DATABASE_URL:-}" ]]; then

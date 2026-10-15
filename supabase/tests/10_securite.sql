@@ -63,6 +63,8 @@ EXCEPTION WHEN insufficient_privilege THEN NULL; END $$;
 \echo '2. Visiteuse anonyme : infos publiques OK, création directe interdite'
 SELECT pg_temp.verifier((SELECT count(*) FROM public.salon_public('salon-a')) = 1, 'salon public introuvable');
 SELECT pg_temp.verifier((SELECT count(*) FROM public.prestations_publiques('salon-a')) = 1, 'prestations publiques');
+SELECT pg_temp.verifier(NOT (SELECT to_jsonb(x) ?| ARRAY['adresse', 'stripe_account_id', 'email_contact'] FROM public.salon_public('salon-a') x),
+  'la page publique expose l''adresse, le compte Stripe ou l''e-mail du salon');
 SELECT pg_temp.verifier(
   (SELECT count(*) FROM public.creneaux_disponibles('salon-a', (SELECT jour FROM t), 'a1000000-0000-0000-0000-000000000001')) > 0,
   'aucun créneau public');
@@ -115,6 +117,21 @@ SELECT pg_temp.verifier(
 SELECT pg_temp.verifier(
   (SELECT count(*) FROM public.creneaux_disponibles('salon-a', (SELECT jour FROM t), 'a1000000-0000-0000-0000-000000000001') c
    WHERE c.heure = '12:00') = 0, 'créneau proposé pendant la pause');
+
+\echo '3 bis. Agenda impossible à bloquer avec des demandes non payées'
+CREATE TEMP TABLE s1 AS SELECT * FROM public.creer_demande('salon-b', 'b1000000-0000-0000-0000-000000000001',
+  (SELECT jour FROM t), '09:00', 'Spam', 'Bot', 'spam@exemple.test', '0699999999', '');
+CREATE TEMP TABLE s2 AS SELECT * FROM public.creer_demande('salon-b', 'b1000000-0000-0000-0000-000000000001',
+  (SELECT jour FROM t), '11:00', 'Spam', 'Bot', 'spam@exemple.test', '0699999999', '');
+DO $$ BEGIN
+  PERFORM public.creer_demande('salon-b', 'b1000000-0000-0000-0000-000000000001', (SELECT jour FROM t), '14:00',
+    'Spam', 'Bot', 'SPAM@exemple.test', '0699999999', '');
+  RAISE EXCEPTION 'ÉCHEC : 3e demande non payée acceptée pour la même adresse';
+EXCEPTION WHEN raise_exception THEN
+  IF SQLERRM NOT LIKE '%TROP_DE_DEMANDES%' THEN RAISE; END IF;
+END $$;
+UPDATE public.reservations SET statut = 'annulee', acompte_statut = 'expire'
+WHERE id IN (SELECT reservation_id FROM s1 UNION SELECT reservation_id FROM s2);
 
 \echo '4. Référence vers la donnée d''un autre salon impossible'
 DO $$ BEGIN

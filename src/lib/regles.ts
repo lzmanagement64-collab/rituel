@@ -105,6 +105,7 @@ const MESSAGES: Record<string, string> = {
   TRANSITION_INTERDITE: "Ce changement n'est pas possible pour ce rendez-vous.",
   RESERVATION_INCONNUE: "Rendez-vous introuvable.",
   ANNULATION_IMPOSSIBLE: "Ce rendez-vous ne peut plus être annulé en ligne.",
+  TROP_DE_DEMANDES: "Vous avez déjà une réservation en cours de paiement. Terminez-la ou attendez 30 minutes.",
 };
 
 export function messageErreur(brut: unknown, defaut = "Une erreur est survenue. Merci de réessayer."): string {

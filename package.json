@@ -9,7 +9,11 @@
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "test": "bun test tests",
+    "test:base": "bash scripts/tester-base.sh",
+    "typecheck": "tsc --noEmit",
+    "verifier": "bun test tests && bash scripts/tester-base.sh && vite build && tsc --noEmit"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
